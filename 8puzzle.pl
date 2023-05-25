@@ -121,4 +121,4 @@ solve(Board, Limit) :-
 solve(Board) :- solve(Board, 100).
 
 solve0() :- solve([[1,2,3],[4,5,6],[7,9,8]]). % 1 step (1,095 inferences, 0.000s)
-solve1() :- solve([[3,2,4],[7,9,6],[5,1,8]]). % 18 Steps )
+solve1() :- solve([[3,2,4],[7,9,6],[5,1,8]]). % 18 Steps (3,704,252,363 inferences, 302.169s)
