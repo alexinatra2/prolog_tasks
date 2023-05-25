@@ -14,7 +14,20 @@ f([H | T], Y) :- g([H | T], Y1), h(H, Y2), Y is Y1 + Y2.
 g(L, Y) :- length(L, Y0), Y is Y0 - 1.
 
 % The heuristic function
-h(Board, D) :- md(Board, MD), cd(Board, CD), D is MD + CD.
+% h(Board, D) :- md(Board, MD), cd(Board, CD), D is MD + CD.
+h(Board, D) :- md(Board, D).
+% h(Board, D) :- hd(Board, D).
+
+hd0(16, _, 0).
+hd0(B, G, Diff) :- B == G, Diff is 0; Diff is 1.
+
+hd(Board, HD) :-
+  flatten(Board, B),
+  goal(GoalB),
+  flatten(GoalB,G),
+  maplist(hd0, B, G, Diffs),
+  sumlist(Diffs, HD), !.
+
 
 % md calculates the Manhattan distance of the entire board 
 % implied by the definition of md0 for a single tile.
@@ -34,8 +47,6 @@ md(Board, MD) :-
   flatten(GoalB,G),
   maplist(md0, B, G, Diffs),
   sumlist(Diffs, MD), !.
-
-
   
 incorrect_row(Row, Number) :- Number == 16; ActualRow is div(Number - 1, 4), Row \== ActualRow.
 
@@ -99,11 +110,15 @@ idfs(Node, Limit, Visited, Path) :-
 % The Limit parameter is gradually increased.
 idas_search(Start, Limit, MaxLimit, Path) :- 
   idfs(Start, Limit, [Start], Path);
+   writeln(Limit),
   Limit =< MaxLimit,
   NewLimit is Limit + 1,
   idas_search(Start, NewLimit, MaxLimit, Path).
 
-idas_search(Start, MaxLimit, Path) :- idas_search(Start, 1, MaxLimit, Path).
+idas_search(Start, MaxLimit, Path) :- 
+  h(Start, HeuristicalEstimate),
+  idas_search(Start, HeuristicalEstimate, MaxLimit, Path).
+  % idas_search(Start, 1, MaxLimit, Path). 
 
 print_board(Board) :- maplist(writeln, Board), writeln('').
 print(Boards) :- maplist(print_board, Boards).
@@ -125,3 +140,6 @@ solve(Board) :- solve(Board, 80).
 solve0() :- solve([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,16,15]]).
 solve1() :- solve([[1,2,3,4],[5,6,7,8],[9,10,11,12],[16,13,14,15]]).
 solve2() :- solve([[1,3,2,5],[6,4,16,10],[14,7,15,8],[12,9,13,11]]).
+solve3() :- solve([[1,2,3,16],[5,6,7,4],[9,10,11,8],[13,14,15,12]]).
+solve4() :- solve([[1,2,3,4],[13,9,5,10],[6,8,11,15],[7,12,14,16]]).
+
