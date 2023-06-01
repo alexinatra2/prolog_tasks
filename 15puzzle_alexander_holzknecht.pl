@@ -1,5 +1,38 @@
+% Beleg KI Alexander Holzknecht
+% Bibl. Nummer: : s83768
+% Matrikel Nummer: 50947
+
+% Aufgabe a:
+% Zu zeigen ist, dass die durch h(s) definierte Funktion sich als
+% Heuristik für das Lösen des 15 Puzzles eignet. Dazu muss gezeigt
+% werden, dass h(s) stets kleiner als die tatsächliche Anzahl an
+% Lösungsschritten ist.
+% Für den Fall das h_c = 0, gilt h(s) = h_m(s). Die Zulässigkeit
+% der Manhattan Distanz h_m als Heuristik ist in der Vorlesung wie
+% folgt bewiesen:
+% "(Die Manhattan Distanz ist die) Anzahl Verschiebungen, die nötig
+% sind, um ein Plättchen auf direktem Weg zum Ziel zu schieben,
+% summiert über alle Plättchen. Diese Heuristik ist zulässig, da
+% für jedes Plättchen mindestens diese Anzahl an Verschiebungen
+% nötig ist".
+% Im Fall h_c = 2 betrachten wir den Fall, bei der die tatsächliche
+% Entfernung so nah wie möglich ist. Dies ist dann der Fall, wenn p
+% und q direkt nebeneinander liegen, und in der Zielposition des 
+% jeweils anderen stehen. Um p und q zu vertauschen muss
+% p vertikal verschoben werden, anschließend horizontal
+% in Richtung Zielposition, q in seine Zielposition
+% und p zurück vertikal in die ursprüngliche Reihe geschoben werden. 
+% Dies erfordert 4 Schritte. Die beiden horizontalen Schritte werden
+% bereits von der Manhattan Distanz geschätzt. Die weiteren 2
+% Schritte werden von h_c erfasst. Somit ist h(s) maximal gleich groß
+% wie die Anzahl Schritte der tatsächlichen schnellsten Lösung und 
+% somit eine zulässige Heuristik.
+%
+%
+% Aufgabe b:
 :- use_module(library(clpfd)).
 
+% Definition of final board
 goal([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]).
 
 % Cost function taking into account traversed path (with weights)
@@ -14,20 +47,10 @@ f([H | T], Y) :- g([H | T], Y1), h(H, Y2), Y is Y1 + Y2.
 g(L, Y) :- length(L, Y0), Y is Y0 - 1.
 
 % The heuristic function
-% h(Board, D) :- md(Board, MD), cd(Board, CD), D is MD + CD.
-h(Board, D) :- md(Board, D).
-% h(Board, D) :- hd(Board, D).
-
-hd0(16, _, 0).
-hd0(B, G, Diff) :- B == G, Diff is 0; Diff is 1.
-
-hd(Board, HD) :-
-  flatten(Board, B),
-  goal(GoalB),
-  flatten(GoalB,G),
-  maplist(hd0, B, G, Diffs),
-  sumlist(Diffs, HD), !.
-
+h(Board, D) :- md(Board, MD), cd(Board, CD), D is MD + CD.
+% the Manhattan distance performs way better. to use it 
+% comment the code above and uncomment the code below.
+% h(Board, D) :- md(Board, D).
 
 % md calculates the Manhattan distance of the entire board 
 % implied by the definition of md0 for a single tile.
